@@ -23,3 +23,7 @@ A modified **Yukuku's ambilwarna** color picker lets users pick a color for text
 ![alt tag](https://github.com/akshaydugar/RichTextEditor/blob/master/screenshots/Screenshot1.png)
 
 ![alt tag](https://github.com/akshaydugar/RichTextEditor/blob/master/screenshots/Screenshot2.png)
+
+##TODO
+1. Gradle dependency
+2. Sample app
