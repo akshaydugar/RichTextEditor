@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ambilwarna_dialogView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center">
+
+    <RelativeLayout
+        android:id="@+id/ambilwarna_viewContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/ambilwarna_spacer_8"
+        android:paddingLeft="@dimen/ambilwarna_spacer_8"
+        android:paddingRight="@dimen/ambilwarna_spacer_8"
+        android:paddingTop="@dimen/ambilwarna_spacer_8">
+
+        <com.fiberlink.maas360.android.richtexteditor.colorpicker.AmbilWarnaSquare
+            android:id="@+id/ambilwarna_viewSatBri"
+            android:layout_width="@dimen/ambilwarna_hsvWidth"
+            android:layout_height="@dimen/ambilwarna_hsvHeight"
+            android:layerType="software" />
+
+        <LinearLayout
+            android:id="@+id/default_colors"
+            android:layout_width="@dimen/ambilwarna_color_square_view"
+            android:layout_height="@dimen/ambilwarna_color_square"
+            android:layout_marginTop="@dimen/ambilwarna_spacer_8"
+            android:layout_below="@id/ambilwarna_viewSatBri"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/color_black"
+                android:layout_width="@dimen/ambilwarna_color_square"
+                android:layout_height="@dimen/ambilwarna_color_square"
+                android:layout_marginRight="@dimen/ambilwarna_spacer_8"
+                android:background="@color/black" />
+
+            <ImageView
+                android:id="@+id/color_gray"
+                android:layout_width="@dimen/ambilwarna_color_square"
+                android:layout_height="@dimen/ambilwarna_color_square"
+                android:layout_marginRight="@dimen/ambilwarna_spacer_8"
+                android:background="@color/gray" />
+
+            <ImageView
+                android:id="@+id/color_lt_gray"
+                android:layout_width="@dimen/ambilwarna_color_square"
+                android:layout_height="@dimen/ambilwarna_color_square"
+                android:layout_marginRight="@dimen/ambilwarna_spacer_8"
+                android:background="@color/ltGray" />
+
+            <ImageView
+                android:id="@+id/color_white"
+                android:layout_width="@dimen/ambilwarna_color_square"
+                android:layout_height="@dimen/ambilwarna_color_square"
+                android:layout_marginRight="@dimen/ambilwarna_spacer_8"
+                android:background="@color/white" />
+
+            <ImageView
+                android:id="@+id/color_red"
+                android:layout_width="@dimen/ambilwarna_color_square"
+                android:layout_height="@dimen/ambilwarna_color_square"
+                android:layout_marginRight="@dimen/ambilwarna_spacer_8"
+                android:background="@color/red" />
+
+            <ImageView
+                android:id="@+id/color_yellow"
+                android:layout_width="@dimen/ambilwarna_color_square"
+                android:layout_height="@dimen/ambilwarna_color_square"
+                android:layout_marginRight="@dimen/ambilwarna_spacer_8"
+                android:background="@color/yellow" />
+
+            <ImageView
+                android:id="@+id/color_blue"
+                android:layout_width="@dimen/ambilwarna_color_square"
+                android:layout_height="@dimen/ambilwarna_color_square"
+                android:layout_marginRight="@dimen/ambilwarna_spacer_8"
+                android:background="@color/blue" />
+
+            <ImageView
+                android:id="@+id/color_green"
+                android:layout_width="@dimen/ambilwarna_color_square"
+                android:layout_height="@dimen/ambilwarna_color_square"
+                android:background="@color/green" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/ambilwarna_viewHue"
+            android:layout_width="@dimen/ambilwarna_hueWidth"
+            android:layout_height="@dimen/ambilwarna_hsvHeight"
+            android:layout_marginLeft="@dimen/ambilwarna_spacer_12"
+            android:layout_toRightOf="@id/ambilwarna_viewSatBri"
+            android:scaleType="fitXY"
+            android:src="@drawable/ambilwarna_hue" />
+
+        <ImageView
+            android:id="@+id/ambilwarna_cursor"
+            android:layout_width="9dp"
+            android:layout_height="9dp"
+            android:scaleType="matrix"
+            android:src="@drawable/ambilwarna_cursor" />
+
+        <ImageView
+            android:id="@+id/ambilwarna_target"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:scaleType="matrix"
+            android:src="@drawable/ambilwarna_target" />
+
+        <LinearLayout
+            android:id="@+id/ambilwarna_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/default_colors"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/ambilwarna_spacer_12"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/ambilwarna_newColor_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/formatted_text_preview"
+                android:textSize="32sp" />
+
+        </LinearLayout>
+    </RelativeLayout>
+
+</FrameLayout>

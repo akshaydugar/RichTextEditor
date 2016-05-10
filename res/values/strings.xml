@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">RichEditText</string>
+    <string name="formatted_text_preview">Hello there!</string>
+</resources>
