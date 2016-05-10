@@ -2,7 +2,7 @@
 Replacement for Android's EditText, which allows user to input text with formatting (WYSIWYG)
 
 ## Motivation
-We wanted to add rich text editing capabilities to our email app.
+We wanted to add rich text editing capabilities to our Android app.
 There are many open source projects available that provide rich text editing capabilities for Android. Unfortunately, we couldn't find any that was readily usable.
 **Wasabeef's richeditor-android** is an excellent WYSIWYG Editor for Android and that acted as a starting point for this project.
 Rich Text Editor decouples the input view from the formatting toolbar so that they can be placed in a layout according to the app's design.
