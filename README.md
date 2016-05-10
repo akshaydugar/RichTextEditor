@@ -1,5 +1,5 @@
 ## RichTextEditor
-Replacement for Android's EditText, which allows user to input text with formatting
+Replacement for Android's EditText, which allows user to input text with formatting (WYSIWYG)
 
 ## Motivation
 We wanted to add rich text editing capabilities to our email app.
@@ -17,3 +17,8 @@ It uses JavaScript interface callbacks to inform the formatting toolbar about wh
 6. To pre-populate the RichEditText with some HTML, pass the source HTML to *setHtml* method
 7. To get the input HTML from RichEditText call the *getHtml* method
 8. Add a content change listener to RichEditText by calling *addChangeListener* method
+
+##Screenshots
+![alt tag](https://github.com/akshaydugar/RichTextEditor/blob/master/screenshots/Screenshot1.png)
+
+![alt tag](https://github.com/akshaydugar/RichTextEditor/blob/master/screenshots/Screenshot2.png)
