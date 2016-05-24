@@ -19,6 +19,15 @@ A modified **Yukuku's ambilwarna** color picker lets users pick a color for text
 7. To get the input HTML from RichEditText call the **getHtml** method
 8. Add a content change listener to RichEditText by calling **addChangeListener** method
 
+##Proguard configuration
+If your app uses Proguard, add the following to your proguard-project-config file:
+-keep public class com.fiberlink.maas360.android.richtexteditor.RichWebView$EditorJavaScriptInterface
+-keep public class * implements com.fiberlink.maas360.android.richtexteditor.RichWebView$EditorJavaScriptInterface
+-keepclassmembers class com.fiberlink.maas360.android.richtexteditor.RichWebView$EditorJavaScriptInterface { 
+    <methods>; 
+}
+-keepattributes JavascriptInterface
+
 ##Screenshots
 ![alt tag](https://github.com/akshaydugar/RichTextEditor/blob/master/screenshots/Screenshot1.png)
 
