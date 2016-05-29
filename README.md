@@ -36,7 +36,7 @@ dependencies {
 8. Add a content change listener to RichEditText by calling **addChangeListener** method
 
 ##Proguard configuration
-If your app uses Proguard, add the following to your proguard-project-config file:
+If your app uses Proguard, add the following to your proguard-project-config.txt/proguard-rules.pro file:
 ```
 -keep public class com.fiberlink.maas360.android.richtexteditor.RichWebView$EditorJavaScriptInterface
 -keep public class * implements com.fiberlink.maas360.android.richtexteditor.RichWebView$EditorJavaScriptInterface
