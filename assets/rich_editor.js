@@ -25,7 +25,12 @@ RE.currentSelection = {
 RE.editor = document.getElementById('editor');
 
 RE.setHtml = function(contents) {
-    RE.editor.innerHTML = decodeURIComponent(contents.replace(/\+/g, '%20'));
+    RE.editor.innerHTML = "";
+    var div = document.createElement('div');
+    div.id = "editor_child";
+    div.dir = "ltr";
+    div.innerHTML = decodeURIComponent(contents.replace(/\+/g, '%20'));
+    RE.editor.appendChild(div);
 }
 
 RE.getHtml = function() {
@@ -283,7 +288,7 @@ RE.editor.addEventListener("click", function(e) {
     if (selection.rangeCount > 0) {
         var range = selection.getRangeAt(0);
         var text = range.startContainer.data;
-        var index = range.startOffset;
+        var index = range.endOffset;
         if (typeof text === 'undefined' && index == 0) {
             // Click on beginning of html
             RE.allowAllItems();
@@ -303,8 +308,23 @@ RE.editor.addEventListener("input", function(e) {
     if (selection.rangeCount > 0) {
         var range = selection.getRangeAt(0);
         var text = range.startContainer.data;
-        var index = range.startOffset;
-        if (typeof text === 'undefined') {
+        var index = range.endOffset;
+
+        if (typeof text != 'undefined' && index > 0) {
+            var char = text.charAt(index - 1);
+            var letter = RE.checkLetter(char);
+            if (letter) {
+                var rtl = RE.checkRTL(char);
+                if (rtl) {
+                    RE.setDirection("rtl", char);
+                }
+                else {
+                    RE.setDirection("ltr", char);
+                }
+            }
+        }
+
+        if (typeof text == 'undefined') {
             // User just entered something unknown
             RE.allowAllItems();
         }
@@ -330,3 +350,84 @@ document.addEventListener("selectionchange", function() {
         }
     }
 });
+
+RE.checkRTL = function(s) {
+    var ltrChars        = 'A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02B8\u0300-\u0590\u0800-\u1FFF'+'\u2C00-\uFB1C\uFDFE-\uFE6F\uFEFD-\uFFFF',
+        rtlChars        = '\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC',
+        rtlDirCheck     = new RegExp('^[^'+ltrChars+']*['+rtlChars+']');
+
+    return rtlDirCheck.test(s);
+};
+
+RE.checkLetter = function(s) {
+    var allChars        = 'A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02B8\u0300-\u0590\u0800-\u1FFF'+'\u2C00-\uFB1C\uFDFE-\uFE6F\uFEFD-\uFFFF'+'\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC',
+        allCharsCheck     = new RegExp('['+allChars+']');
+
+    return allCharsCheck.test(s);
+}
+
+RE.setDirection = function(direction, newChar) {
+    var currentNode = document.getSelection().anchorNode;
+    var node = document.getSelection().anchorNode;
+    if (node != null) {
+        while (node.nodeName != "DIV") {
+            node = node.parentNode;
+        }
+        var curDiv = node;
+        if (curDiv.dir == direction) {
+            // Direction is correct, do nothing
+            return;
+        }
+
+        var curDivContentHtml = curDiv.innerHTML.trim();
+        if (curDivContentHtml == '' || curDivContentHtml == newChar) {
+            // Just update direction of current div
+            curDiv.dir = direction;
+            return;
+        }
+
+        var curDivContentText = curDiv.innerText.trim();
+        // Create a new div with appropriate direction
+        var endIndex = curDivContentText.indexOf(newChar);
+        var index = endIndex - 1;
+        while (index >= 0) {
+            if (curDivContentText.charCodeAt(index) == 10) {
+                break;
+            }
+            var letter = RE.checkLetter(curDivContentText.charAt(index));
+            if (!letter) {
+                index--;
+                continue;
+            }
+            var rtl = RE.checkRTL(curDivContentText.charAt(index));
+            if (direction == "ltr" && rtl == true) {
+                break;
+            }
+            else if (direction == "rtl" && rtl == false) {
+                break;
+            }
+            index--;
+        }
+
+        var newChars = curDivContentText.substring(index + 1, endIndex + 1);
+        curDivContentHtml = curDivContentHtml.replace(newChars, '');
+        curDiv.innerHTML = curDivContentHtml;
+
+        var newDivContent = newChars;
+        var div = document.createElement('div');
+        div.dir = direction;
+        div.innerHTML = newDivContent;
+        curDiv.appendChild(div);
+        RE.setCaretAtEnd(div);
+    }
+}
+
+RE.setCaretAtEnd = function(div) {
+    var range = document.createRange();
+    var sel = window.getSelection();
+    range.selectNodeContents(div);
+    range.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(range);
+    div.focus();
+}

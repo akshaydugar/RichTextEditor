@@ -8,7 +8,6 @@ import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.content.res.TypedArray;
 import android.os.Build;
 import android.text.TextUtils;
@@ -90,11 +89,6 @@ public class RichWebView extends WebView
         addJavascriptInterface(new EditorJavaScriptInterface(), JAVA_SCRIPT_INTERFACE_NAME);
         setWebChromeClient(new WebChromeClient());
         setWebViewClient(createWebviewClient());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            if (0 != (context.getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE)) {
-                WebView.setWebContentsDebuggingEnabled(true);
-            }
-        }
         loadUrl(SETUP_HTML);
 
         applyAttributes(context, attrs);
