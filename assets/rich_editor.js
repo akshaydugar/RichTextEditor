@@ -380,8 +380,8 @@ RE.setDirection = function(direction, newChar) {
         }
 
         var curDivContentHtml = curDiv.innerHTML.trim();
-        if (curDivContentHtml == '' || curDivContentHtml == newChar) {
-            // Just update direction of current div
+        if ((curDivContentHtml == '' || curDivContentHtml == newChar) && curDiv.id != "editor") {
+            // Just update direction of current div (if not the root div)
             curDiv.dir = direction;
             return;
         }
