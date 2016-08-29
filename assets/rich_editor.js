@@ -31,6 +31,7 @@ RE.setHtml = function(contents) {
     div.dir = "ltr";
     div.innerHTML = decodeURIComponent(contents.replace(/\+/g, '%20'));
     RE.editor.appendChild(div);
+    RE.setCaretAtStart(div);
 }
 
 RE.getHtml = function() {
@@ -427,6 +428,16 @@ RE.setCaretAtEnd = function(div) {
     var sel = window.getSelection();
     range.selectNodeContents(div);
     range.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(range);
+    div.focus();
+}
+
+RE.setCaretAtStart = function(div) {
+    var range = document.createRange();
+    var sel = window.getSelection();
+    range.selectNodeContents(div);
+    range.collapse(true);
     sel.removeAllRanges();
     sel.addRange(range);
     div.focus();
