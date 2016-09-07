@@ -39,7 +39,6 @@ public class RichWebView extends WebView
         BOLD,
         ITALIC,
         UNDERLINE,
-        STRIKETHROUGH,
         FORECOLOR,
         HILITECOLOR
     }
@@ -257,11 +256,6 @@ public class RichWebView extends WebView
     public void setUnderline()
     {
         exec("javascript:RE.setUnderline();");
-    }
-
-    public void setStrikethrough()
-    {
-        exec("javascript:RE.setStrikeThrough();");
     }
 
     public void setTextColor(int color)

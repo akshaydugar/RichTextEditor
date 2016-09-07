@@ -37,7 +37,6 @@ public class RichEditText extends RelativeLayout
     private ImageButton mBoldButton;
     private ImageButton mItalicButton;
     private ImageButton mUnderlineButton;
-    private ImageButton mStrikethroughButton;
     private ImageButton mTextColorButton;
     private ImageButton mTextBackgroundColorButton;
 
@@ -47,8 +46,6 @@ public class RichEditText extends RelativeLayout
     private boolean mItalicAllowed;
     private boolean mUnderlineEnabled;
     private boolean mUnderlineAllowed;
-    private boolean mStrikethroughEnabled;
-    private boolean mStrikethroughAllowed;
     private boolean mTextColorAllowed;
     private boolean mBackgroundColorAllowed;
 
@@ -176,70 +173,58 @@ public class RichEditText extends RelativeLayout
 
         switch (stateType)
         {
-        case ALLOW:
-            if (types.contains(RichWebView.Type.BOLD)) {
-                allowBoldButton();
-            }
-            else {
-                blockBoldButton();
-            }
-            if (types.contains(RichWebView.Type.ITALIC)) {
-                allowItalicButton();
-            }
-            else {
-                blockItalicButton();
-            }
-            if (types.contains(RichWebView.Type.UNDERLINE)) {
-                allowUnderlineButton();
-            }
-            else {
-                blockUnderlineButton();
-            }
-            if (types.contains(RichWebView.Type.STRIKETHROUGH)) {
-                allowStrikethroughButton();
-            }
-            else {
-                blockStrikethroughButton();
-            }
-            if (types.contains(RichWebView.Type.FORECOLOR)) {
-                allowTextColorButton();
-            }
-            else {
-                blockTextColorButton();
-            }
-            if (types.contains(RichWebView.Type.HILITECOLOR)) {
-                allowBackgroundColorButton();
-            }
-            else {
-                blockTextBackgroundColorButton();
-            }
-            break;
-        case ENABLE:
-            if (types.contains(RichWebView.Type.BOLD)) {
-                enableBoldButton();
-            }
-            else {
-                disableBoldButton();
-            }
-            if (types.contains(RichWebView.Type.ITALIC)) {
-                enableItalicButton();
-            }
-            else {
-                disableItalicButton();
-            }
-            if (types.contains(RichWebView.Type.UNDERLINE)) {
-                enableUnderlineButton();
-            }
-            else {
-                disableUnderlineButton();
-            }
-            if (types.contains(RichWebView.Type.STRIKETHROUGH)) {
-                enableStrikethroughButton();
-            }
-            else {
-                disableStrikethroughButton();
-            }
-            break;
+            case ALLOW:
+                if (types.contains(RichWebView.Type.BOLD)) {
+                    allowBoldButton();
+                }
+                else {
+                    blockBoldButton();
+                }
+                if (types.contains(RichWebView.Type.ITALIC)) {
+                    allowItalicButton();
+                }
+                else {
+                    blockItalicButton();
+                }
+                if (types.contains(RichWebView.Type.UNDERLINE)) {
+                    allowUnderlineButton();
+                }
+                else {
+                    blockUnderlineButton();
+                }
+                if (types.contains(RichWebView.Type.FORECOLOR)) {
+                    allowTextColorButton();
+                }
+                else {
+                    blockTextColorButton();
+                }
+                if (types.contains(RichWebView.Type.HILITECOLOR)) {
+                    allowBackgroundColorButton();
+                }
+                else {
+                    blockTextBackgroundColorButton();
+                }
+                break;
+            case ENABLE:
+                if (types.contains(RichWebView.Type.BOLD)) {
+                    enableBoldButton();
+                }
+                else {
+                    disableBoldButton();
+                }
+                if (types.contains(RichWebView.Type.ITALIC)) {
+                    enableItalicButton();
+                }
+                else {
+                    disableItalicButton();
+                }
+                if (types.contains(RichWebView.Type.UNDERLINE)) {
+                    enableUnderlineButton();
+                }
+                else {
+                    disableUnderlineButton();
+                }
+                break;
         }
     }
 
@@ -250,7 +235,6 @@ public class RichEditText extends RelativeLayout
         setupBoldButton();
         setupItalicButton();
         setupUnderlineButton();
-        setupStrikethroughButton();
         setupTextColorButton();
         setupTextBackgroundColorButton();
     }
@@ -270,8 +254,6 @@ public class RichEditText extends RelativeLayout
         disableItalicButton();
         blockUnderlineButton();
         disableUnderlineButton();
-        blockStrikethroughButton();
-        disableStrikethroughButton();
         blockTextColorButton();
         blockTextBackgroundColorButton();
     }
@@ -317,21 +299,6 @@ public class RichEditText extends RelativeLayout
             {
                 toggleUnderlineButton();
                 mEditor.setUnderline();
-            }
-        });
-    }
-
-    private void setupStrikethroughButton()
-    {
-        mStrikethroughButton = (ImageButton) mActions.findViewById(R.id.action_strikethrough);
-        blockStrikethroughButton();
-        disableStrikethroughButton();
-        mStrikethroughButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v)
-            {
-                toggleStrikethroughButton();
-                mEditor.setStrikethrough();
             }
         });
     }
@@ -541,49 +508,6 @@ public class RichEditText extends RelativeLayout
     {
         mUnderlineEnabled = false;
         mUnderlineButton.setBackgroundColor(getResources().getColor(R.color.colorDisabledButtonBackground));
-    }
-
-    private void allowStrikethroughButton()
-    {
-        mStrikethroughAllowed = true;
-        mStrikethroughButton.setImageDrawable(getResources().getDrawable(R.drawable.strikethrough_48));
-    }
-
-    private void blockStrikethroughButton()
-    {
-        mStrikethroughAllowed = false;
-        mStrikethroughButton.setImageDrawable(getResources().getDrawable(R.drawable.strikethrough_grey_48));
-    }
-
-    private void toggleStrikethroughButton()
-    {
-        if (mStrikethroughAllowed) {
-            if (mStrikethroughEnabled) {
-                disableStrikethroughButton();
-            }
-            else {
-                enableStrikethroughButton();
-            }
-        }
-    }
-
-    private void enableStrikethroughButton()
-    {
-        mStrikethroughEnabled = true;
-        if (mStrikethroughAllowed) {
-            mStrikethroughButton.setBackgroundColor(getResources().getColor(
-                    R.color.colorEnabledAndAllowedButtonBackground));
-        }
-        else {
-            mStrikethroughButton.setBackgroundColor(getResources().getColor(
-                    R.color.colorEnabledAndNotAllowedButtonBackground));
-        }
-    }
-
-    private void disableStrikethroughButton()
-    {
-        mStrikethroughEnabled = false;
-        mStrikethroughButton.setBackgroundColor(getResources().getColor(R.color.colorDisabledButtonBackground));
     }
 
     private void allowTextColorButton()
