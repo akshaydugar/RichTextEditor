@@ -15,6 +15,7 @@
  */
 
 var RE = {};
+var changeDir = true;
 
 RE.currentSelection = {
     "startContainer": 0,
@@ -314,7 +315,7 @@ RE.editor.addEventListener("input", function(e) {
         if (typeof text != 'undefined' && index > 0) {
             var char = text.charAt(index - 1);
             var letter = RE.checkLetter(char);
-            if (letter) {
+            if (letter && changeDir) {
                 var rtl = RE.checkRTL(char);
                 if (rtl) {
                     RE.setDirection("rtl", char);
@@ -322,12 +323,14 @@ RE.editor.addEventListener("input", function(e) {
                 else {
                     RE.setDirection("ltr", char);
                 }
+                changeDir = false;
             }
         }
 
         if (typeof text == 'undefined') {
-            // User just entered something unknown
+            // User just entered newline or something unknown
             RE.allowAllItems();
+            changeDir = true;
         }
         else if (index > 0 && text.charCodeAt(index - 1) == 160) {
             // User just entered space
