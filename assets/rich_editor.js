@@ -235,15 +235,7 @@ RE.blockAllItems = function() {
     if (document.queryCommandState('underline')) {
         enabledItems.push('UNDERLINE');
     }
-    if (document.queryCommandState('strikeThrough')) {
-        enabledItems.push('STRIKETHROUGH');
-    }
-    if (document.queryCommandState('foreColor')) {
-        enabledItems.push('FORECOLOR');
-    }
-    if (document.queryCommandState('hiliteColor')) {
-        enabledItems.push('HILITECOLOR');
-    }
+
     var enabledEditableItems = encodeURI(enabledItems.join(','));
 
     JSInterface.callback("~!~!~!" + enabledEditableItems + "~!~!~!" + encodeURI(RE.getHtml()));
@@ -254,9 +246,10 @@ RE.allowAllItems = function() {
     allowedItems.push('BOLD');
     allowedItems.push('ITALIC');
     allowedItems.push('UNDERLINE');
-    allowedItems.push('STRIKETHROUGH');
     allowedItems.push('FORECOLOR');
     allowedItems.push('HILITECOLOR');
+    allowedItems.push('UNORDEREDLIST');
+    allowedItems.push('ORDEREDLIST');
 
     var allowedEditableItems = encodeURI(allowedItems.join(','));
 
@@ -270,15 +263,7 @@ RE.allowAllItems = function() {
     if (document.queryCommandState('underline')) {
         enabledItems.push('UNDERLINE');
     }
-    if (document.queryCommandState('strikeThrough')) {
-        enabledItems.push('STRIKETHROUGH');
-    }
-    if (document.queryCommandState('foreColor')) {
-        enabledItems.push('FORECOLOR');
-    }
-    if (document.queryCommandState('hiliteColor')) {
-        enabledItems.push('HILITECOLOR');
-    }
+
     var enabledEditableItems = encodeURI(enabledItems.join(','));
 
     JSInterface.callback(allowedEditableItems + "~!~!~!" + enabledEditableItems + "~!~!~!" + encodeURI(RE.getHtml()));
@@ -384,7 +369,7 @@ RE.setDirection = function(direction, newChar) {
         }
 
         var curDivContentHtml = curDiv.innerHTML.trim();
-        if ((curDivContentHtml == '' || curDivContentHtml == newChar) && curDiv.id != "editor") {
+        if ((curDiv.dir == '' || curDivContentHtml == '' || curDivContentHtml == newChar) && curDiv.id != "editor") {
             // Just update direction of current div (if not the root div)
             curDiv.dir = direction;
             return;

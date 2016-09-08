@@ -39,6 +39,8 @@ public class RichEditText extends RelativeLayout
     private ImageButton mUnderlineButton;
     private ImageButton mTextColorButton;
     private ImageButton mTextBackgroundColorButton;
+    private ImageButton mBulletsButton;
+    private ImageButton mNumbersButton;
 
     private boolean mBoldEnabled;
     private boolean mBoldAllowed;
@@ -48,6 +50,8 @@ public class RichEditText extends RelativeLayout
     private boolean mUnderlineAllowed;
     private boolean mTextColorAllowed;
     private boolean mBackgroundColorAllowed;
+    private boolean mBulletsAllowed;
+    private boolean mNumbersAllowed;
 
     private int mSelectedTextColor = -1;
     private int mSelectedTextBackgroundColor = -1;
@@ -173,58 +177,70 @@ public class RichEditText extends RelativeLayout
 
         switch (stateType)
         {
-            case ALLOW:
-                if (types.contains(RichWebView.Type.BOLD)) {
-                    allowBoldButton();
-                }
-                else {
-                    blockBoldButton();
-                }
-                if (types.contains(RichWebView.Type.ITALIC)) {
-                    allowItalicButton();
-                }
-                else {
-                    blockItalicButton();
-                }
-                if (types.contains(RichWebView.Type.UNDERLINE)) {
-                    allowUnderlineButton();
-                }
-                else {
-                    blockUnderlineButton();
-                }
-                if (types.contains(RichWebView.Type.FORECOLOR)) {
-                    allowTextColorButton();
-                }
-                else {
-                    blockTextColorButton();
-                }
-                if (types.contains(RichWebView.Type.HILITECOLOR)) {
-                    allowBackgroundColorButton();
-                }
-                else {
-                    blockTextBackgroundColorButton();
-                }
-                break;
-            case ENABLE:
-                if (types.contains(RichWebView.Type.BOLD)) {
-                    enableBoldButton();
-                }
-                else {
-                    disableBoldButton();
-                }
-                if (types.contains(RichWebView.Type.ITALIC)) {
-                    enableItalicButton();
-                }
-                else {
-                    disableItalicButton();
-                }
-                if (types.contains(RichWebView.Type.UNDERLINE)) {
-                    enableUnderlineButton();
-                }
-                else {
-                    disableUnderlineButton();
-                }
-                break;
+        case ALLOW:
+            if (types.contains(RichWebView.Type.BOLD)) {
+                allowBoldButton();
+            }
+            else {
+                blockBoldButton();
+            }
+            if (types.contains(RichWebView.Type.ITALIC)) {
+                allowItalicButton();
+            }
+            else {
+                blockItalicButton();
+            }
+            if (types.contains(RichWebView.Type.UNDERLINE)) {
+                allowUnderlineButton();
+            }
+            else {
+                blockUnderlineButton();
+            }
+            if (types.contains(RichWebView.Type.FORECOLOR)) {
+                allowTextColorButton();
+            }
+            else {
+                blockTextColorButton();
+            }
+            if (types.contains(RichWebView.Type.HILITECOLOR)) {
+                allowBackgroundColorButton();
+            }
+            else {
+                blockTextBackgroundColorButton();
+            }
+            if (types.contains(RichWebView.Type.UNORDEREDLIST)) {
+                allowBulletsButton();
+            }
+            else {
+                blockBulletsButton();
+            }
+            if (types.contains(RichWebView.Type.ORDEREDLIST)) {
+                allowNumbersButton();
+            }
+            else {
+                blockNumbersButton();
+            }
+            break;
+        case ENABLE:
+            if (types.contains(RichWebView.Type.BOLD)) {
+                enableBoldButton();
+            }
+            else {
+                disableBoldButton();
+            }
+            if (types.contains(RichWebView.Type.ITALIC)) {
+                enableItalicButton();
+            }
+            else {
+                disableItalicButton();
+            }
+            if (types.contains(RichWebView.Type.UNDERLINE)) {
+                enableUnderlineButton();
+            }
+            else {
+                disableUnderlineButton();
+            }
+            break;
         }
     }
 
@@ -237,6 +253,8 @@ public class RichEditText extends RelativeLayout
         setupUnderlineButton();
         setupTextColorButton();
         setupTextBackgroundColorButton();
+        setupBulletsButton();
+        setupNumbersButton();
     }
 
     private void notifyChangeListener()
@@ -256,6 +274,8 @@ public class RichEditText extends RelativeLayout
         disableUnderlineButton();
         blockTextColorButton();
         blockTextBackgroundColorButton();
+        blockBulletsButton();
+        blockNumbersButton();
     }
 
     private void setupBoldButton()
@@ -329,6 +349,38 @@ public class RichEditText extends RelativeLayout
             {
                 if (mBackgroundColorAllowed) {
                     showTextBackgroundColorChooser();
+                }
+            }
+        });
+    }
+
+    private void setupBulletsButton()
+    {
+        mBulletsButton = (ImageButton) mActions.findViewById(R.id.action_bullets);
+        blockBulletsButton();
+        mBulletsButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v)
+            {
+                if (mBulletsAllowed) {
+                    mEditor.setBullets();
+                }
+            }
+        });
+    }
+
+    private void setupNumbersButton()
+    {
+        mNumbersButton = (ImageButton) mActions.findViewById(R.id.action_numbers);
+        blockNumbersButton();
+        mNumbersButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v)
+            {
+                if (mNumbersAllowed) {
+                    mEditor.setNumbers();
                 }
             }
         });
@@ -499,8 +551,8 @@ public class RichEditText extends RelativeLayout
                     .setBackgroundColor(getResources().getColor(R.color.colorEnabledAndAllowedButtonBackground));
         }
         else {
-            mUnderlineButton.setBackgroundColor(getResources().getColor(
-                    R.color.colorEnabledAndNotAllowedButtonBackground));
+            mUnderlineButton
+                    .setBackgroundColor(getResources().getColor(R.color.colorEnabledAndNotAllowedButtonBackground));
         }
     }
 
@@ -532,6 +584,30 @@ public class RichEditText extends RelativeLayout
     {
         mBackgroundColorAllowed = false;
         mTextBackgroundColorButton.setImageDrawable(getResources().getDrawable(R.drawable.hilite_color_grey_48));
+    }
+
+    private void allowBulletsButton()
+    {
+        mBulletsAllowed = true;
+        mBulletsButton.setImageDrawable(getResources().getDrawable(R.drawable.bullets_48));
+    }
+
+    private void blockBulletsButton()
+    {
+        mBulletsAllowed = false;
+        mBulletsButton.setImageDrawable(getResources().getDrawable(R.drawable.bullets_grey_48));
+    }
+
+    private void allowNumbersButton()
+    {
+        mNumbersAllowed = true;
+        mNumbersButton.setImageDrawable(getResources().getDrawable(R.drawable.numbers_48));
+    }
+
+    private void blockNumbersButton()
+    {
+        mNumbersAllowed = false;
+        mNumbersButton.setImageDrawable(getResources().getDrawable(R.drawable.numbers_grey_48));
     }
 
     public interface ChangeListener

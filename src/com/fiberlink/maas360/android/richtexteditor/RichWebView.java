@@ -40,7 +40,9 @@ public class RichWebView extends WebView
         ITALIC,
         UNDERLINE,
         FORECOLOR,
-        HILITECOLOR
+        HILITECOLOR,
+        UNORDEREDLIST,
+        ORDEREDLIST
     }
 
     public enum StateType
@@ -256,6 +258,16 @@ public class RichWebView extends WebView
     public void setUnderline()
     {
         exec("javascript:RE.setUnderline();");
+    }
+
+    public void setBullets()
+    {
+        exec("javascript:RE.setBullets();");
+    }
+
+    public void setNumbers()
+    {
+        exec("javascript:RE.setNumbers();");
     }
 
     public void setTextColor(int color)
