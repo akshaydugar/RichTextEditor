@@ -61,6 +61,11 @@ public class RichWebView extends WebView
         void onAfterInitialLoad(boolean isReady);
     }
 
+    public interface ScrollListener
+    {
+        void onScrollTo(int y);
+    }
+
     private static final String SETUP_HTML = "file:///android_asset/editor.html";
     private static final String CALLBACK_SEPARATOR = "~!~!~!";
     private static final String JAVA_SCRIPT_INTERFACE_NAME = "JSInterface";
@@ -68,6 +73,7 @@ public class RichWebView extends WebView
     private String mContents;
     private OnStateChangeListener mStateChangeListener;
     private AfterInitialLoadListener mLoadListener;
+    private ScrollListener mScrollListener;
 
     public RichWebView(Context context)
     {
@@ -110,19 +116,32 @@ public class RichWebView extends WebView
         mLoadListener = listener;
     }
 
+    public void setScrollListener(ScrollListener listener)
+    {
+        mScrollListener = listener;
+    }
+
     private void handleCallback(String text)
     {
         String[] stringParts = text.split(CALLBACK_SEPARATOR);
         String allowedString = "";
         String enabledString = "";
+        String y = "";
         if (stringParts.length > 0) {
             allowedString = stringParts[0];
             if (stringParts.length > 1) {
                 enabledString = stringParts[1];
                 if (stringParts.length > 2) {
-                    mContents = stringParts[2];
+                    y = stringParts[2];
+                    if (stringParts.length > 3) {
+                        mContents = stringParts[3];
+                    }
                 }
             }
+        }
+
+        if (!TextUtils.isEmpty(y) && mScrollListener != null) {
+            mScrollListener.onScrollTo((int) Float.parseFloat(y));
         }
 
         List<Type> types = new ArrayList<>();

@@ -224,7 +224,7 @@ RE.removeFormat = function() {
     execCommand('removeFormat', false, null);
 }
 
-RE.blockAllItems = function() {
+RE.blockAllItems = function(y) {
     var enabledItems = [];
     if (document.queryCommandState('bold')) {
         enabledItems.push('BOLD');
@@ -238,10 +238,10 @@ RE.blockAllItems = function() {
 
     var enabledEditableItems = encodeURI(enabledItems.join(','));
 
-    JSInterface.callback("~!~!~!" + enabledEditableItems + "~!~!~!" + encodeURI(RE.getHtml()));
+    JSInterface.callback("~!~!~!" + enabledEditableItems + "~!~!~!" + y + "~!~!~!" + encodeURI(RE.getHtml()));
 }
 
-RE.allowAllItems = function() {
+RE.allowAllItems = function(y) {
     var allowedItems = [];
     allowedItems.push('BOLD');
     allowedItems.push('ITALIC');
@@ -266,7 +266,7 @@ RE.allowAllItems = function() {
 
     var enabledEditableItems = encodeURI(enabledItems.join(','));
 
-    JSInterface.callback(allowedEditableItems + "~!~!~!" + enabledEditableItems + "~!~!~!" + encodeURI(RE.getHtml()));
+    JSInterface.callback(allowedEditableItems + "~!~!~!" + enabledEditableItems + "~!~!~!" + y + "~!~!~!" + encodeURI(RE.getHtml()));
 }
 
 // Event Listeners
@@ -276,16 +276,27 @@ RE.editor.addEventListener("click", function(e) {
         var range = selection.getRangeAt(0);
         var text = range.startContainer.data;
         var index = range.endOffset;
+
+        var newRange = range.cloneRange();
+        newRange.collapse(false);
+        var span = document.createElement("span");
+        span.appendChild( document.createTextNode("\u200b") );
+        newRange.insertNode(span);
+        var y = span.offsetTop;
+        var spanParent = span.parentNode;
+        spanParent.removeChild(span);
+        spanParent.normalize();
+
         if (typeof text === 'undefined' && index == 0) {
             // Click on beginning of html
-            RE.allowAllItems();
+            RE.allowAllItems(y);
         }
         else if (index > 0 && (text[index - 1] == ' ' || text.charCodeAt(index - 1) == 160)) {
             // Click after a space
-            RE.allowAllItems();
+            RE.allowAllItems(y);
         }
         else {
-            RE.blockAllItems();
+            RE.blockAllItems(y);
         }
     }
 });
@@ -296,6 +307,16 @@ RE.editor.addEventListener("input", function(e) {
         var range = selection.getRangeAt(0);
         var text = range.startContainer.data;
         var index = range.endOffset;
+
+        var newRange = range.cloneRange();
+        newRange.collapse(false);
+        var span = document.createElement("span");
+        span.appendChild( document.createTextNode("\u200b") );
+        newRange.insertNode(span);
+        var y = span.offsetTop;
+        var spanParent = span.parentNode;
+        spanParent.removeChild(span);
+        spanParent.normalize();
 
         if (typeof text != 'undefined' && index > 0) {
             var char = text.charAt(index - 1);
@@ -314,15 +335,15 @@ RE.editor.addEventListener("input", function(e) {
 
         if (typeof text == 'undefined') {
             // User just entered newline or something unknown
-            RE.allowAllItems();
+            RE.allowAllItems(y);
             changeDir = true;
         }
         else if (index > 0 && text.charCodeAt(index - 1) == 160) {
             // User just entered space
-            RE.allowAllItems();
+            RE.allowAllItems(y);
         }
         else {
-            RE.blockAllItems();
+            RE.blockAllItems(y);
         }
     }
 });
@@ -334,8 +355,19 @@ document.addEventListener("selectionchange", function() {
         var range = selection.getRangeAt(0);
         var start = range.startOffset;
         var end = range.endOffset;
+
+        var newRange = range.cloneRange();
+        newRange.collapse(false);
+        var span = document.createElement("span");
+        span.appendChild( document.createTextNode("\u200b") );
+        newRange.insertNode(span);
+        var y = span.offsetTop;
+        var spanParent = span.parentNode;
+        spanParent.removeChild(span);
+        spanParent.normalize();
+
         if (start >= 0 && end >= 0 && end - start > 0) {
-            RE.allowAllItems();
+            RE.allowAllItems(y);
         }
     }
 });

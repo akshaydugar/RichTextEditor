@@ -32,7 +32,8 @@ public class RichEditText extends RelativeLayout
     private RichWebView mEditor;
     private RichTextActions mActions;
 
-    private ChangeListener mListener;
+    private ChangeListener mChangeListener;
+    private ScrollListener mScrollListener;
 
     private ImageButton mBoldButton;
     private ImageButton mItalicButton;
@@ -114,12 +115,22 @@ public class RichEditText extends RelativeLayout
 
     public void addChangeListener(ChangeListener listener)
     {
-        mListener = listener;
+        mChangeListener = listener;
     }
 
     public void removeChangeListener()
     {
-        mListener = null;
+        mChangeListener = null;
+    }
+
+    public void addScrollListener(ScrollListener listener)
+    {
+        mScrollListener = listener;
+    }
+
+    public void removeScrollListener()
+    {
+        mScrollListener = null;
     }
 
     private void setupView(Context context)
@@ -164,6 +175,22 @@ public class RichEditText extends RelativeLayout
                         handleStateChange(text, types, stateType);
                     }
                 });
+            }
+        });
+
+        mEditor.setScrollListener(new RichWebView.ScrollListener() {
+            @Override
+            public void onScrollTo(final int y)
+            {
+                if (mScrollListener != null) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run()
+                        {
+                            mScrollListener.onScrollTo((int) (y * mEditor.getScale()));
+                        }
+                    });
+                }
             }
         });
     }
@@ -259,8 +286,8 @@ public class RichEditText extends RelativeLayout
 
     private void notifyChangeListener()
     {
-        if (mListener != null) {
-            mListener.onChange();
+        if (mChangeListener != null) {
+            mChangeListener.onChange();
         }
     }
 
@@ -613,5 +640,10 @@ public class RichEditText extends RelativeLayout
     public interface ChangeListener
     {
         void onChange();
+    }
+
+    public interface ScrollListener
+    {
+        void onScrollTo(int y);
     }
 }
