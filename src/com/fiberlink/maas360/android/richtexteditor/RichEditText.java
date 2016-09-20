@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -56,6 +57,8 @@ public class RichEditText extends RelativeLayout
 
     private int mSelectedTextColor = -1;
     private int mSelectedTextBackgroundColor = -1;
+
+    private static final String SAVE_STATE_KEY = "RichEditTextState";
 
     public RichEditText(Context context)
     {
@@ -131,6 +134,19 @@ public class RichEditText extends RelativeLayout
     public void removeScrollListener()
     {
         mScrollListener = null;
+    }
+
+    public void saveState(Bundle outState)
+    {
+        outState.putString(SAVE_STATE_KEY, getHtml());
+    }
+
+    public void restoreState(Bundle inState)
+    {
+        String html = inState.getString(SAVE_STATE_KEY);
+        if (!TextUtils.isEmpty(html)) {
+            setHtml(html);
+        }
     }
 
     private void setupView(Context context)
