@@ -16,6 +16,7 @@
 
 var RE = {};
 var changeDir = true;
+var saveStateSpanId = "CFMaaS360ARState";
 
 RE.currentSelection = {
     "startContainer": 0,
@@ -28,11 +29,23 @@ RE.editor = document.getElementById('editor');
 RE.setHtml = function(contents) {
     RE.editor.innerHTML = "";
     var div = document.createElement('div');
-    div.id = "editor_child";
     div.dir = "ltr";
     div.innerHTML = decodeURIComponent(contents.replace(/\+/g, '%20'));
     RE.editor.appendChild(div);
-    RE.setCaretAtStart(div);
+    var saveStateSpan = document.getElementById(saveStateSpanId);
+    if (saveStateSpan != null) {
+        RE.setCaretAtStart(saveStateSpan);
+        var y = saveStateSpan.offsetTop + saveStateSpan.offsetHeight;
+        var spanOffsetParent = saveStateSpan.offsetParent;
+        while (spanOffsetParent != null) {
+            y = y + spanOffsetParent.offsetTop;
+            spanOffsetParent = spanOffsetParent.offsetParent;
+        }
+        RE.blockAllItems(y);
+    }
+    else {
+        RE.setCaretAtStart(div);
+    }
 }
 
 RE.getHtml = function() {
@@ -282,10 +295,28 @@ RE.editor.addEventListener("click", function(e) {
         var span = document.createElement("span");
         span.appendChild( document.createTextNode("\u200b") );
         newRange.insertNode(span);
-        var y = span.offsetTop;
+        var y = span.offsetTop + span.offsetHeight;
+        var spanOffsetParent = span.offsetParent;
+        while (spanOffsetParent != null) {
+            y = y + spanOffsetParent.offsetTop;
+            spanOffsetParent = spanOffsetParent.offsetParent;
+        }
         var spanParent = span.parentNode;
         spanParent.removeChild(span);
         spanParent.normalize();
+
+        var oldSaveStateSpan = document.getElementById(saveStateSpanId);
+        if (oldSaveStateSpan != null) {
+            var oldSaveStateSpanParent = oldSaveStateSpan.parentNode;
+            oldSaveStateSpanParent.removeChild(oldSaveStateSpan);
+            oldSaveStateSpanParent.normalize();
+        }
+        var saveStateRange = document.createRange();
+        saveStateRange.setStart(range.endContainer, index);
+        saveStateRange.setEnd(range.endContainer, index);
+        var saveStateSpan = document.createElement("span");
+        saveStateSpan.id = saveStateSpanId;
+        saveStateRange.insertNode(saveStateSpan);
 
         if (typeof text === 'undefined' && index == 0) {
             // Click on beginning of html
@@ -313,10 +344,28 @@ RE.editor.addEventListener("input", function(e) {
         var span = document.createElement("span");
         span.appendChild( document.createTextNode("\u200b") );
         newRange.insertNode(span);
-        var y = span.offsetTop;
+        var y = span.offsetTop + span.offsetHeight;
+        var spanOffsetParent = span.offsetParent;
+        while (spanOffsetParent != null) {
+            y = y + spanOffsetParent.offsetTop;
+            spanOffsetParent = spanOffsetParent.offsetParent;
+        }
         var spanParent = span.parentNode;
         spanParent.removeChild(span);
         spanParent.normalize();
+
+        var oldSaveStateSpan = document.getElementById(saveStateSpanId);
+        if (oldSaveStateSpan != null) {
+            var oldSaveStateSpanParent = oldSaveStateSpan.parentNode;
+            oldSaveStateSpanParent.removeChild(oldSaveStateSpan);
+            oldSaveStateSpanParent.normalize();
+        }
+        var saveStateRange = document.createRange();
+        saveStateRange.setStart(range.endContainer, index);
+        saveStateRange.setEnd(range.endContainer, index);
+        var saveStateSpan = document.createElement("span");
+        saveStateSpan.id = saveStateSpanId;
+        saveStateRange.insertNode(saveStateSpan);
 
         if (typeof text != 'undefined' && index > 0) {
             var char = text.charAt(index - 1);
@@ -361,7 +410,12 @@ document.addEventListener("selectionchange", function() {
         var span = document.createElement("span");
         span.appendChild( document.createTextNode("\u200b") );
         newRange.insertNode(span);
-        var y = span.offsetTop;
+        var y = span.offsetTop + span.offsetHeight;
+        var spanOffsetParent = span.offsetParent;
+        while (spanOffsetParent != null) {
+            y = y + spanOffsetParent.offsetTop;
+            spanOffsetParent = spanOffsetParent.offsetParent;
+        }
         var spanParent = span.parentNode;
         spanParent.removeChild(span);
         spanParent.normalize();

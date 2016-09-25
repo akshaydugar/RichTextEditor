@@ -57,8 +57,9 @@ public class RichEditText extends RelativeLayout
 
     private int mSelectedTextColor = -1;
     private int mSelectedTextBackgroundColor = -1;
+    private int mScrollDelay = 0;
 
-    private static final String SAVE_STATE_KEY = "RichEditTextState";
+    private static final String SAVE_STATE_KEY = "com.fiberlink.maas360.android.richtexteditor.RichEditTextState";
 
     public RichEditText(Context context)
     {
@@ -102,6 +103,8 @@ public class RichEditText extends RelativeLayout
             return;
         }
         mEditor.setHtml(html);
+        // Delay any scroll as the html may take a little time to render
+        mScrollDelay = 500;
     }
 
     public String getHtml()
@@ -199,13 +202,14 @@ public class RichEditText extends RelativeLayout
             public void onScrollTo(final int y)
             {
                 if (mScrollListener != null) {
-                    mHandler.post(new Runnable() {
+                    mHandler.postDelayed(new Runnable() {
                         @Override
                         public void run()
                         {
                             mScrollListener.onScrollTo((int) (y * mEditor.getScale()));
                         }
-                    });
+                    }, mScrollDelay);
+                    mScrollDelay = 0;
                 }
             }
         });
