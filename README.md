@@ -18,24 +18,8 @@ Rich Text Editor decouples the input view from the formatting toolbar so that th
 It uses JavaScript interface callbacks to inform the formatting toolbar about which formatting actions are allowed/enabled at the current cursor position and the formatting toolbar enables/disables and highlights buttons accordingly.
 A modified **Yukuku's ambilwarna** color picker lets users pick a color for text or text background.
 
-## Gradle Dependency
-The library is available as a Gradle dependency through jcenter.
-Add the following code to your application's build.gradle:
-```
-buildscript {
-    repositories {
-        jcenter()
-    }
-    ...
-}
-...
-dependencies {
-    compile 'com.fiberlink.maas360.android:richtexteditor:0.1.1'
-}
-```
-
 ## Usage
-1. Add the gradle dependency for the library in your Android app
+1. Download the source code and add it as a project dependency in your app
 2. Replace Android's EditText in the layout file with RichEditText
 3. Add RichTextActions view (which is the formatting toolbar) to the layout file. For most scenarios the ideal place for this bar would be just above the soft keyboard. To achieve this, add RichTextActions to the root RelativeLayout of your layout with android:layout_alignParentBottom parameter set to true
 4. In your activity's onCreate method get references to both RichEditText and RichTextActions from your layout, and pass the RichTextActions reference to the RichEditText's **setRichTextActionsView** method
