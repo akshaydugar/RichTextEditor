@@ -9,7 +9,7 @@ Rich Text Editor decouples the input view from the formatting toolbar so that th
 It uses JavaScript interface callbacks to inform the formatting toolbar about which formatting actions are allowed/enabled at the current cursor position and the formatting toolbar enables/disables and highlights buttons accordingly.
 A modified **Yukuku's ambilwarna** color picker lets users pick a color for text or text background.
 
-##Gradle Dependency
+## Gradle Dependency
 The library is available as a Gradle dependency through jcenter.
 Add the following code to your application's build.gradle:
 ```
@@ -25,7 +25,7 @@ dependencies {
 }
 ```
 
-##Usage
+## Usage
 1. Add the gradle dependency for the library in your Android app
 2. Replace Android's EditText in the layout file with RichEditText
 3. Add RichTextActions view (which is the formatting toolbar) to the layout file. For most scenarios the ideal place for this bar would be just above the soft keyboard. To achieve this, add RichTextActions to the root RelativeLayout of your layout with android:layout_alignParentBottom parameter set to true
@@ -35,7 +35,7 @@ dependencies {
 7. To get the input HTML from RichEditText call the **getHtml** method
 8. Add a content change listener to RichEditText by calling **addChangeListener** method
 
-##Proguard configuration
+## Proguard configuration
 If your app uses Proguard, add the following to your proguard-project-config.txt/proguard-rules.pro file:
 ```
 -keep public class com.fiberlink.maas360.android.richtexteditor.RichWebView$EditorJavaScriptInterface
@@ -46,13 +46,13 @@ If your app uses Proguard, add the following to your proguard-project-config.txt
 -keepattributes JavascriptInterface
 ```
 
-##Sample App
+## Sample App
 A sample app using the RichTextEditor library is available at https://github.com/akshaydugar/RichTextEditor-Sample
 
-##Screenshots
+## Screenshots
 ![alt tag](https://github.com/akshaydugar/RichTextEditor/blob/master/screenshots/Screenshot1.png)
 
 ![alt tag](https://github.com/akshaydugar/RichTextEditor/blob/master/screenshots/Screenshot2.png)
 
-##Limitations
+## Limitations
 1. The **window.getSelection** Javascript method does not work properly on Android webview for OS version < 4.4 KitKat. This method is used to determine the formatting applied to the text at current cursor position. So, it's advised to continue using EditText for OS version < 4.4 and use Rich Text Editor only for OS version >= 4.4
