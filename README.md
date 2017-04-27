@@ -1,5 +1,14 @@
 ## RichTextEditor
-Replacement for Android's EditText, which allows user to input text with formatting (WYSIWYG)
+Replacement for Android's EditText, which allows user to input text with formatting (WYSIWYG).
+Features:
+1. Bold
+2. Italic
+3. Underline
+4. Text color
+5. Text background color
+6. Bullets
+7. Numbered list
+8. Inline image
 
 ## Motivation
 We wanted to add rich text editing capabilities to our Android app.
