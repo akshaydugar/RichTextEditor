@@ -27,6 +27,8 @@ A modified **Yukuku's ambilwarna** color picker lets users pick a color for text
 6. To pre-populate the RichEditText with some HTML, pass the source HTML to **setHtml** method
 7. To get the input HTML from RichEditText call the **getHtml** method
 8. Add a content change listener to RichEditText by calling **addChangeListener** method
+9. The formatting toolbar can be closed using the close button. To show the toolbar again, call the **showRichTextActions** method
+10. To add inline image in the HTML, implement the **ImageInsertListener** listener, it will give you a callback to **onImageInsert** method when user taps the image button. Here, you need your own code to allow user to import an image. Once user has selected the image, call the RichEditText's insertImage method, which will add the image to the HTML. Note: The insert image method takes a URL, this can either be a network URL or a local content URI.
 
 ## Proguard configuration
 If your app uses Proguard, add the following to your proguard-project-config.txt/proguard-rules.pro file:
