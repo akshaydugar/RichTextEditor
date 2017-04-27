@@ -15,6 +15,8 @@ import android.widget.LinearLayout;
 
 public class RichTextActions extends LinearLayout
 {
+    public static final int HEIGHT = 40;
+
     private Context mContext;
     private LayoutInflater mInflater;
 

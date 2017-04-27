@@ -8,4 +8,5 @@
 	<dimen name="ambilwarna_spacer_6">6dp</dimen>
 	<dimen name="ambilwarna_spacer_8">8dp</dimen>
 	<dimen name="ambilwarna_spacer_12">12dp</dimen>
+	<dimen name="border_width">1dp</dimen>
 </resources>

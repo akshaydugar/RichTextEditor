@@ -16,7 +16,7 @@
 
 var RE = {};
 var changeDir = true;
-var saveStateSpanId = "CFMaaS360ARState";
+var saveStateDivId = "CFMaaS360ARState";
 
 RE.currentSelection = {
     "startContainer": 0,
@@ -32,19 +32,38 @@ RE.setHtml = function(contents) {
     div.dir = "ltr";
     div.innerHTML = decodeURIComponent(contents.replace(/\+/g, '%20'));
     RE.editor.appendChild(div);
-    var saveStateSpan = document.getElementById(saveStateSpanId);
-    if (saveStateSpan != null) {
-        RE.setCaretAtStart(saveStateSpan);
-        var y = saveStateSpan.offsetTop + saveStateSpan.offsetHeight;
-        var spanOffsetParent = saveStateSpan.offsetParent;
-        while (spanOffsetParent != null) {
-            y = y + spanOffsetParent.offsetTop;
-            spanOffsetParent = spanOffsetParent.offsetParent;
+    RE.setCaretAtStart(div);
+}
+
+RE.setHtmlAndPath = function(contents, path) {
+    RE.editor.innerHTML = "";
+    var div = document.createElement('div');
+    div.dir = "ltr";
+    div.innerHTML = decodeURIComponent(contents.replace(/\+/g, '%20'));
+    RE.editor.appendChild(div);
+    RE.setCaretAtStart(div);
+
+    if (path != null && path != "") {
+        var node = document.getElementById(saveStateDivId);
+        if (node == null) {
+            node = div;
+            node.id = saveStateDivId;
         }
-        RE.blockAllItems(y);
-    }
-    else {
-        RE.setCaretAtStart(div);
+        var pathArray = path.split(',');
+        var length = pathArray.length;
+        for(var i = 0; i < length - 1; i++) {
+            var index = pathArray[i];
+            node = node.childNodes[index];
+        }
+
+        var currentIndex = pathArray[length - 1];
+        RE.setCaretAtPosition(node, currentIndex);
+
+        var range = document.createRange();
+        range.setStart(node, currentIndex);
+        range.setEnd(node, currentIndex);
+        var y = RE.getY(range);
+        RE.blockAllItems(y, path);
     }
 }
 
@@ -73,6 +92,11 @@ RE.setPadding = function(left, top, right, bottom) {
 
 RE.setBackgroundColor = function(color) {
     document.body.style.backgroundColor = color;
+}
+
+RE.insertImage = function(url, alt) {
+    var html = '<img src="' + url + '" alt="' + alt + '" /><br><br>';
+    RE.insertHTML(html);
 }
 
 RE.setBackgroundImage = function(image) {
@@ -237,7 +261,7 @@ RE.removeFormat = function() {
     execCommand('removeFormat', false, null);
 }
 
-RE.blockAllItems = function(y) {
+RE.blockAllItems = function(y, saveStatePath) {
     var enabledItems = [];
     if (document.queryCommandState('bold')) {
         enabledItems.push('BOLD');
@@ -251,10 +275,10 @@ RE.blockAllItems = function(y) {
 
     var enabledEditableItems = encodeURI(enabledItems.join(','));
 
-    JSInterface.callback("~!~!~!" + enabledEditableItems + "~!~!~!" + y + "~!~!~!" + encodeURI(RE.getHtml()));
+    JSInterface.callback("~!~!~!" + enabledEditableItems + "~!~!~!" + y + "~!~!~!" + saveStatePath + "~!~!~!" + encodeURI(RE.getHtml()));
 }
 
-RE.allowAllItems = function(y) {
+RE.allowAllItems = function(y, saveStatePath) {
     var allowedItems = [];
     allowedItems.push('BOLD');
     allowedItems.push('ITALIC');
@@ -263,6 +287,7 @@ RE.allowAllItems = function(y) {
     allowedItems.push('HILITECOLOR');
     allowedItems.push('UNORDEREDLIST');
     allowedItems.push('ORDEREDLIST');
+    allowedItems.push('IMAGE');
 
     var allowedEditableItems = encodeURI(allowedItems.join(','));
 
@@ -279,7 +304,51 @@ RE.allowAllItems = function(y) {
 
     var enabledEditableItems = encodeURI(enabledItems.join(','));
 
-    JSInterface.callback(allowedEditableItems + "~!~!~!" + enabledEditableItems + "~!~!~!" + y + "~!~!~!" + encodeURI(RE.getHtml()));
+    JSInterface.callback(allowedEditableItems + "~!~!~!" + enabledEditableItems + "~!~!~!" + y + "~!~!~!" + saveStatePath + "~!~!~!" + encodeURI(RE.getHtml()));
+}
+
+RE.getY = function(range) {
+    var newRange = range.cloneRange();
+    newRange.collapse(false);
+    var span = document.createElement("span");
+    span.appendChild( document.createTextNode("\u200b") );
+    newRange.insertNode(span);
+    var y = span.offsetTop + (span.offsetHeight / 2);
+    var spanOffsetParent = span.offsetParent;
+    while (spanOffsetParent != null) {
+        y = y + spanOffsetParent.offsetTop;
+        spanOffsetParent = spanOffsetParent.offsetParent;
+    }
+    var spanParent = span.parentNode;
+    spanParent.removeChild(span);
+    spanParent.normalize();
+    return y;
+}
+
+RE.getSaveStatePath = function(index) {
+    var saveStateDiv = document.getElementById(saveStateDivId);
+    if (saveStateDiv != null) {
+        saveStateDiv.id = "";
+    }
+    var node = window.getSelection().anchorNode;
+    var path = "";
+    if (node != null) {
+        path = index + path;
+        while (node.nodeName != "DIV") {
+            var child = node;
+            var i = 0;
+            while( (child = child.previousSibling) != null ) {
+                i++;
+            }
+            path = i + "," + path;
+            node = node.parentNode;
+        }
+        var curDiv = node;
+        if (curDiv.id != "editor") {
+            curDiv.id = saveStateDivId;
+        }
+    }
+    return path;
 }
 
 // Event Listeners
@@ -290,44 +359,19 @@ RE.editor.addEventListener("click", function(e) {
         var text = range.startContainer.data;
         var index = range.endOffset;
 
-        var newRange = range.cloneRange();
-        newRange.collapse(false);
-        var span = document.createElement("span");
-        span.appendChild( document.createTextNode("\u200b") );
-        newRange.insertNode(span);
-        var y = span.offsetTop + span.offsetHeight;
-        var spanOffsetParent = span.offsetParent;
-        while (spanOffsetParent != null) {
-            y = y + spanOffsetParent.offsetTop;
-            spanOffsetParent = spanOffsetParent.offsetParent;
-        }
-        var spanParent = span.parentNode;
-        spanParent.removeChild(span);
-        spanParent.normalize();
-
-        var oldSaveStateSpan = document.getElementById(saveStateSpanId);
-        if (oldSaveStateSpan != null) {
-            var oldSaveStateSpanParent = oldSaveStateSpan.parentNode;
-            oldSaveStateSpanParent.removeChild(oldSaveStateSpan);
-            oldSaveStateSpanParent.normalize();
-        }
-        var saveStateRange = document.createRange();
-        saveStateRange.setStart(range.endContainer, index);
-        saveStateRange.setEnd(range.endContainer, index);
-        var saveStateSpan = document.createElement("span");
-        saveStateSpan.id = saveStateSpanId;
-        saveStateRange.insertNode(saveStateSpan);
+        var y = RE.getY(range);
+        var path = RE.getSaveStatePath(index);
 
         if (typeof text === 'undefined' && index == 0) {
             // Click on beginning of html
-            RE.allowAllItems(y);
+            RE.allowAllItems(y, path);
         }
         else if (index > 0 && (text[index - 1] == ' ' || text.charCodeAt(index - 1) == 160)) {
             // Click after a space
-            RE.allowAllItems(y);
+            RE.allowAllItems(y, path);
         }
         else {
-            RE.blockAllItems(y);
+            RE.blockAllItems(y, path);
         }
     }
 });
@@ -339,33 +383,8 @@ RE.editor.addEventListener("input", function(e) {
         var text = range.startContainer.data;
         var index = range.endOffset;
 
-        var newRange = range.cloneRange();
-        newRange.collapse(false);
-        var span = document.createElement("span");
-        span.appendChild( document.createTextNode("\u200b") );
-        newRange.insertNode(span);
-        var y = span.offsetTop + span.offsetHeight;
-        var spanOffsetParent = span.offsetParent;
-        while (spanOffsetParent != null) {
-            y = y + spanOffsetParent.offsetTop;
-            spanOffsetParent = spanOffsetParent.offsetParent;
-        }
-        var spanParent = span.parentNode;
-        spanParent.removeChild(span);
-        spanParent.normalize();
-
-        var oldSaveStateSpan = document.getElementById(saveStateSpanId);
-        if (oldSaveStateSpan != null) {
-            var oldSaveStateSpanParent = oldSaveStateSpan.parentNode;
-            oldSaveStateSpanParent.removeChild(oldSaveStateSpan);
-            oldSaveStateSpanParent.normalize();
-        }
-        var saveStateRange = document.createRange();
-        saveStateRange.setStart(range.endContainer, index);
-        saveStateRange.setEnd(range.endContainer, index);
-        var saveStateSpan = document.createElement("span");
-        saveStateSpan.id = saveStateSpanId;
-        saveStateRange.insertNode(saveStateSpan);
+        var y = RE.getY(range);
+        var path = RE.getSaveStatePath(index);
 
         if (typeof text != 'undefined' && index > 0) {
             var char = text.charAt(index - 1);
@@ -384,15 +403,15 @@ RE.editor.addEventListener("input", function(e) {
 
         if (typeof text == 'undefined') {
             // User just entered newline or something unknown
-            RE.allowAllItems(y);
+            RE.allowAllItems(y, path);
             changeDir = true;
         }
         else if (index > 0 && text.charCodeAt(index - 1) == 160) {
             // User just entered space
-            RE.allowAllItems(y);
+            RE.allowAllItems(y, path);
         }
         else {
-            RE.blockAllItems(y);
+            RE.blockAllItems(y, path);
         }
     }
 });
@@ -405,23 +424,10 @@ document.addEventListener("selectionchange", function() {
         var start = range.startOffset;
         var end = range.endOffset;
 
-        var newRange = range.cloneRange();
-        newRange.collapse(false);
-        var span = document.createElement("span");
-        span.appendChild( document.createTextNode("\u200b") );
-        newRange.insertNode(span);
-        var y = span.offsetTop + span.offsetHeight;
-        var spanOffsetParent = span.offsetParent;
-        while (spanOffsetParent != null) {
-            y = y + spanOffsetParent.offsetTop;
-            spanOffsetParent = spanOffsetParent.offsetParent;
-        }
-        var spanParent = span.parentNode;
-        spanParent.removeChild(span);
-        spanParent.normalize();
+        var y = RE.getY(range);
 
         if (start >= 0 && end >= 0 && end - start > 0) {
-            RE.allowAllItems(y);
+            RE.allowAllItems(y, "");
         }
     }
 });
@@ -497,22 +503,31 @@ RE.setDirection = function(direction, newChar) {
     }
 }
 
-RE.setCaretAtEnd = function(div) {
+RE.setCaretAtEnd = function(node) {
     var range = document.createRange();
     var sel = window.getSelection();
-    range.selectNodeContents(div);
+    range.selectNodeContents(node);
     range.collapse(false);
     sel.removeAllRanges();
     sel.addRange(range);
-    div.focus();
+    node.focus();
 }
 
-RE.setCaretAtStart = function(div) {
+RE.setCaretAtStart = function(node) {
     var range = document.createRange();
     var sel = window.getSelection();
-    range.selectNodeContents(div);
+    range.selectNodeContents(node);
     range.collapse(true);
     sel.removeAllRanges();
     sel.addRange(range);
-    div.focus();
+    node.focus();
+}
+
+RE.setCaretAtPosition = function(node, pos) {
+    var range = document.createRange();
+    var sel = window.getSelection();
+    range.setStart(node, pos);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
 }

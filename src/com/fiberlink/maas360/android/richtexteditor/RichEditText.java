@@ -34,7 +34,9 @@ public class RichEditText extends RelativeLayout
     private RichTextActions mActions;
 
     private ChangeListener mChangeListener;
+    private ImageInsertListener mImageInsertListener;
     private ScrollListener mScrollListener;
+    private ActionsHiddenListener mActionsHiddenListener;
 
     private ImageButton mBoldButton;
     private ImageButton mItalicButton;
@@ -43,6 +45,8 @@ public class RichEditText extends RelativeLayout
     private ImageButton mTextBackgroundColorButton;
     private ImageButton mBulletsButton;
     private ImageButton mNumbersButton;
+    private ImageButton mImageButton;
+    private ImageButton mCloseButton;
 
     private boolean mBoldEnabled;
     private boolean mBoldAllowed;
@@ -54,12 +58,16 @@ public class RichEditText extends RelativeLayout
     private boolean mBackgroundColorAllowed;
     private boolean mBulletsAllowed;
     private boolean mNumbersAllowed;
+    private boolean mImageAllowed;
 
     private int mSelectedTextColor = -1;
     private int mSelectedTextBackgroundColor = -1;
     private int mScrollDelay = 0;
+    private boolean mActionHidden;
 
-    private static final String SAVE_STATE_KEY = "com.fiberlink.maas360.android.richtexteditor.RichEditTextState";
+    private static final String SAVE_STATE_CONTENTS_KEY = "com.fiberlink.maas360.android.richtexteditor.RichEditTextStateContents";
+    private static final String SAVE_STATE_PATH_KEY = "com.fiberlink.maas360.android.richtexteditor.RichEditTextStatePath";
+    private static final String SAVE_STATE_ACTIONS_HIDDEN_KEY = "com.fiberlink.maas360.android.richtexteditor.RichEditTextStateActionsHidden";
 
     public RichEditText(Context context)
     {
@@ -92,6 +100,14 @@ public class RichEditText extends RelativeLayout
         setupActions();
     }
 
+    public void showRichTextActions()
+    {
+        if (mActions != null) {
+            mActionHidden = false;
+            mActions.setVisibility(VISIBLE);
+        }
+    }
+
     public void setPreviewText(String previewText)
     {
         mPreviewText = previewText;
@@ -112,6 +128,20 @@ public class RichEditText extends RelativeLayout
         return mEditor.getHtml();
     }
 
+    private void setHtmlAndPath(String html, String saveStatePath)
+    {
+        if (html == null) {
+            return;
+        }
+        mEditor.setHtmlAndPath(html, saveStatePath);
+        mScrollDelay = 500;
+    }
+
+    public String getSaveStatePath()
+    {
+        return mEditor.getSaveStatePath();
+    }
+
     public void setHint(String hint)
     {
         if (!TextUtils.isEmpty(hint) && mEditor != null) {
@@ -129,6 +159,16 @@ public class RichEditText extends RelativeLayout
         mChangeListener = null;
     }
 
+    public void addImageInsertListener(ImageInsertListener listener)
+    {
+        mImageInsertListener = listener;
+    }
+
+    public void removeImageInsertListener()
+    {
+        mImageInsertListener = null;
+    }
+
     public void addScrollListener(ScrollListener listener)
     {
         mScrollListener = listener;
@@ -139,16 +179,40 @@ public class RichEditText extends RelativeLayout
         mScrollListener = null;
     }
 
+    public void addActionsHiddenListener(ActionsHiddenListener listener)
+    {
+        mActionsHiddenListener = listener;
+    }
+
+    public void removeActionsHiddenListener()
+    {
+        mActionsHiddenListener = null;
+    }
+
+    public void insertImage(String url, String alt)
+    {
+        mEditor.insertImage(url, alt);
+    }
+
     public void saveState(Bundle outState)
     {
-        outState.putString(SAVE_STATE_KEY, getHtml());
+        outState.putString(SAVE_STATE_CONTENTS_KEY, getHtml());
+        outState.putString(SAVE_STATE_PATH_KEY, getSaveStatePath());
+        outState.putBoolean(SAVE_STATE_ACTIONS_HIDDEN_KEY, mActionHidden);
     }
 
     public void restoreState(Bundle inState)
     {
-        String html = inState.getString(SAVE_STATE_KEY);
-        if (!TextUtils.isEmpty(html)) {
-            setHtml(html);
+        String html = inState.getString(SAVE_STATE_CONTENTS_KEY);
+        String saveStatePath = inState.getString(SAVE_STATE_PATH_KEY);
+        mActionHidden = inState.getBoolean(SAVE_STATE_ACTIONS_HIDDEN_KEY);
+        setHtmlAndPath(html, saveStatePath);
+    }
+
+    protected void notifyChangeListener()
+    {
+        if (mChangeListener != null) {
+            mChangeListener.onChange();
         }
     }
 
@@ -176,7 +240,7 @@ public class RichEditText extends RelativeLayout
                     mActions.setVisibility(GONE);
                     blockAndDisableAllButtons();
                 }
-                else {
+                else if (!mActionHidden) {
                     mActions.setVisibility(VISIBLE);
                 }
             }
@@ -185,7 +249,7 @@ public class RichEditText extends RelativeLayout
         mEditor.setStateChangeListener(new RichWebView.OnStateChangeListener() {
             @Override
             public void onStateChanged(final String text, final List<RichWebView.Type> types,
-                    final RichWebView.StateType stateType)
+                final RichWebView.StateType stateType)
             {
                 mHandler.post(new Runnable() {
                     @Override
@@ -207,9 +271,9 @@ public class RichEditText extends RelativeLayout
                         public void run()
                         {
                             mScrollListener.onScrollTo((int) (y * mEditor.getScale()));
+                            mScrollDelay = 0;
                         }
                     }, mScrollDelay);
-                    mScrollDelay = 0;
                 }
             }
         });
@@ -267,6 +331,12 @@ public class RichEditText extends RelativeLayout
             else {
                 blockNumbersButton();
             }
+            if (types.contains(RichWebView.Type.IMAGE)) {
+                allowImageButton();
+            }
+            else {
+                blockImageButton();
+            }
             break;
         case ENABLE:
             if (types.contains(RichWebView.Type.BOLD)) {
@@ -302,13 +372,8 @@ public class RichEditText extends RelativeLayout
         setupTextBackgroundColorButton();
         setupBulletsButton();
         setupNumbersButton();
-    }
-
-    private void notifyChangeListener()
-    {
-        if (mChangeListener != null) {
-            mChangeListener.onChange();
-        }
+        setupImageButton();
+        setupCloseButton();
     }
 
     private void blockAndDisableAllButtons()
@@ -323,6 +388,7 @@ public class RichEditText extends RelativeLayout
         blockTextBackgroundColorButton();
         blockBulletsButton();
         blockNumbersButton();
+        blockImageButton();
     }
 
     private void setupBoldButton()
@@ -433,53 +499,85 @@ public class RichEditText extends RelativeLayout
         });
     }
 
+    private void setupImageButton()
+    {
+        mImageButton = (ImageButton) mActions.findViewById(R.id.action_image);
+        blockImageButton();
+        mImageButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v)
+            {
+                if (mImageAllowed && mImageInsertListener != null) {
+                    mImageInsertListener.onImageInsert();
+                }
+            }
+        });
+    }
+
+    private void setupCloseButton()
+    {
+        mCloseButton = (ImageButton) mActions.findViewById(R.id.action_close);
+        mCloseButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                mActionHidden = true;
+                mActions.setVisibility(GONE);
+                if (mActionsHiddenListener != null) {
+                    mActionsHiddenListener.onActionsHidden();
+                }
+            }
+        });
+    }
+
     private void showTextColorChooser()
     {
         AmbilWarnaDialog dialog = new AmbilWarnaDialog(getContext(), Color.BLACK,
-                new AmbilWarnaDialog.OnAmbilWarnaListener() {
-                    @Override
-                    public void onCancel(AmbilWarnaDialog dialog)
-                    {
-                        // Dialog cancelled
-                    }
+            new AmbilWarnaDialog.OnAmbilWarnaListener() {
+                @Override
+                public void onCancel(AmbilWarnaDialog dialog)
+                {
+                    // Dialog cancelled
+                }
 
-                    @Override
-                    public void onOk(AmbilWarnaDialog dialog, int color)
-                    {
-                        mSelectedTextColor = color;
-                        if (mSelectedTextBackgroundColor == -1) {
-                            mEditor.setTextColor(mSelectedTextColor);
-                        }
-                        else {
-                            mEditor.setTextAndBackgroundColor(mSelectedTextColor, mSelectedTextBackgroundColor);
-                        }
+                @Override
+                public void onOk(AmbilWarnaDialog dialog, int color)
+                {
+                    mSelectedTextColor = color;
+                    if (mSelectedTextBackgroundColor == -1) {
+                        mEditor.setTextColor(mSelectedTextColor);
                     }
-                }, AmbilWarnaDialog.ColorType.TEXT, mPreviewText);
+                    else {
+                        mEditor.setTextAndBackgroundColor(mSelectedTextColor, mSelectedTextBackgroundColor);
+                    }
+                }
+            }, AmbilWarnaDialog.ColorType.TEXT, mPreviewText);
         dialog.show();
     }
 
     private void showTextBackgroundColorChooser()
     {
         AmbilWarnaDialog dialog = new AmbilWarnaDialog(getContext(), Color.WHITE,
-                new AmbilWarnaDialog.OnAmbilWarnaListener() {
-                    @Override
-                    public void onCancel(AmbilWarnaDialog dialog)
-                    {
-                        // Dialog cancelled
-                    }
+            new AmbilWarnaDialog.OnAmbilWarnaListener() {
+                @Override
+                public void onCancel(AmbilWarnaDialog dialog)
+                {
+                    // Dialog cancelled
+                }
 
-                    @Override
-                    public void onOk(AmbilWarnaDialog dialog, int color)
-                    {
-                        mSelectedTextBackgroundColor = color;
-                        if (mSelectedTextColor == -1) {
-                            mEditor.setTextBackgroundColor(mSelectedTextBackgroundColor);
-                        }
-                        else {
-                            mEditor.setTextAndBackgroundColor(mSelectedTextColor, mSelectedTextBackgroundColor);
-                        }
+                @Override
+                public void onOk(AmbilWarnaDialog dialog, int color)
+                {
+                    mSelectedTextBackgroundColor = color;
+                    if (mSelectedTextColor == -1) {
+                        mEditor.setTextBackgroundColor(mSelectedTextBackgroundColor);
                     }
-                }, AmbilWarnaDialog.ColorType.BACKGROUND, mPreviewText);
+                    else {
+                        mEditor.setTextAndBackgroundColor(mSelectedTextColor, mSelectedTextBackgroundColor);
+                    }
+                }
+            }, AmbilWarnaDialog.ColorType.BACKGROUND, mPreviewText);
         dialog.show();
     }
 
@@ -556,7 +654,7 @@ public class RichEditText extends RelativeLayout
         }
         else {
             mItalicButton
-                    .setBackgroundColor(getResources().getColor(R.color.colorEnabledAndNotAllowedButtonBackground));
+                .setBackgroundColor(getResources().getColor(R.color.colorEnabledAndNotAllowedButtonBackground));
         }
     }
 
@@ -595,11 +693,11 @@ public class RichEditText extends RelativeLayout
         mUnderlineEnabled = true;
         if (mUnderlineAllowed) {
             mUnderlineButton
-                    .setBackgroundColor(getResources().getColor(R.color.colorEnabledAndAllowedButtonBackground));
+                .setBackgroundColor(getResources().getColor(R.color.colorEnabledAndAllowedButtonBackground));
         }
         else {
             mUnderlineButton
-                    .setBackgroundColor(getResources().getColor(R.color.colorEnabledAndNotAllowedButtonBackground));
+                .setBackgroundColor(getResources().getColor(R.color.colorEnabledAndNotAllowedButtonBackground));
         }
     }
 
@@ -657,13 +755,39 @@ public class RichEditText extends RelativeLayout
         mNumbersButton.setImageDrawable(getResources().getDrawable(R.drawable.numbers_grey_48));
     }
 
+    private void allowImageButton()
+    {
+        mImageAllowed = true;
+        mImageButton.setImageDrawable(getResources().getDrawable(R.drawable.image_48));
+    }
+
+    private void blockImageButton()
+    {
+        mImageAllowed = false;
+        mImageButton.setImageDrawable(getResources().getDrawable(R.drawable.image_grey_48));
+    }
+
     public interface ChangeListener
     {
         void onChange();
     }
 
+    public interface ImageInsertListener
+    {
+        /**
+         * Callback for when the user taps on the image button. The app should allow the user to select an image, and
+         * then call the insertImage method
+         */
+        void onImageInsert();
+    }
+
     public interface ScrollListener
     {
         void onScrollTo(int y);
+    }
+
+    public interface ActionsHiddenListener
+    {
+        void onActionsHidden();
     }
 }

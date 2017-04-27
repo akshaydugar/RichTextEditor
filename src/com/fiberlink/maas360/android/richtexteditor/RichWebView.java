@@ -42,7 +42,8 @@ public class RichWebView extends WebView
         FORECOLOR,
         HILITECOLOR,
         UNORDEREDLIST,
-        ORDEREDLIST
+        ORDEREDLIST,
+        IMAGE
     }
 
     public enum StateType
@@ -70,6 +71,7 @@ public class RichWebView extends WebView
     private static final String CALLBACK_SEPARATOR = "~!~!~!";
     private static final String JAVA_SCRIPT_INTERFACE_NAME = "JSInterface";
     private boolean isReady;
+    private String mSaveStatePath = "";
     private String mContents;
     private OnStateChangeListener mStateChangeListener;
     private AfterInitialLoadListener mLoadListener;
@@ -93,6 +95,7 @@ public class RichWebView extends WebView
         setVerticalScrollBarEnabled(false);
         setHorizontalScrollBarEnabled(false);
         getSettings().setJavaScriptEnabled(true);
+        getSettings().setAllowFileAccess(false);
         addJavascriptInterface(new EditorJavaScriptInterface(), JAVA_SCRIPT_INTERFACE_NAME);
         setWebChromeClient(new WebChromeClient());
         setWebViewClient(createWebviewClient());
@@ -134,7 +137,10 @@ public class RichWebView extends WebView
                 if (stringParts.length > 2) {
                     y = stringParts[2];
                     if (stringParts.length > 3) {
-                        mContents = stringParts[3];
+                        mSaveStatePath = stringParts[3];
+                        if (stringParts.length > 4) {
+                            mContents = stringParts[4];
+                        }
                     }
                 }
             }
@@ -212,11 +218,25 @@ public class RichWebView extends WebView
         execSetHtml();
     }
 
+    public void setHtmlAndPath(String contents, String path)
+    {
+        if (contents == null) {
+            contents = "";
+        }
+        if (path == null) {
+            path = "";
+        }
+        mContents = contents;
+        mSaveStatePath = path;
+        execSetHtml();
+    }
+
     private void execSetHtml()
     {
         try {
             if (isReady) {
-                load("javascript:RE.setHtml('" + URLEncoder.encode(mContents, "UTF-8") + "');");
+                load("javascript:RE.setHtmlAndPath('" + URLEncoder.encode(mContents, "UTF-8") + "','" + mSaveStatePath
+                    + "');");
             }
             else {
                 postDelayed(new Runnable() {
@@ -239,6 +259,14 @@ public class RichWebView extends WebView
             return "";
         }
         return mContents;
+    }
+
+    public String getSaveStatePath()
+    {
+        if (mSaveStatePath == null) {
+            return "";
+        }
+        return mSaveStatePath;
     }
 
     public void setEditorHeight(int px)
@@ -312,6 +340,12 @@ public class RichWebView extends WebView
         String hex1 = convertHexColorString(textColor);
         String hex2 = convertHexColorString(textBackgroundColor);
         exec("javascript:RE.setTextAndBackgroundColor('" + hex1 + "','" + hex2 + "');");
+    }
+
+    public void insertImage(String url, String alt)
+    {
+        exec("javascript:RE.prepareInsert();");
+        exec("javascript:RE.insertImage('" + url + "', '" + alt + "');");
     }
 
     private String convertHexColorString(int color)

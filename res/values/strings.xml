@@ -1,4 +1,15 @@
 <resources>
     <string name="app_name">RichEditText</string>
     <string name="formatted_text_preview">Hello there!</string>
+
+    <!-- Accessibility Strings -->
+    <string name="desc_bold">Bold</string>
+    <string name="desc_italic">Italic</string>
+    <string name="desc_underline">Underline</string>
+    <string name="desc_text_color">Text Color</string>
+    <string name="desc_bg_color">background Color</string>
+    <string name="desc_bullets">Bullet Points</string>
+    <string name="desc_numbers">Number</string>
+    <string name="desc_image">Insert Image</string>
+    <string name="desc_close">Close Editor Options</string>
 </resources>
