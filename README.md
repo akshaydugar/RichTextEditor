@@ -50,9 +50,8 @@ If your app uses Proguard, add the following to your proguard-project-config.txt
 A sample app using the RichTextEditor library is available at https://github.com/akshaydugar/RichTextEditor-Sample
 
 ## Screenshots
-![alt tag](https://github.com/akshaydugar/RichTextEditor/blob/master/screenshots/Screenshot1.png)
-
-![alt tag](https://github.com/akshaydugar/RichTextEditor/blob/master/screenshots/Screenshot2.png)
+![Alt text](https://github.com/akshaydugar/RichTextEditor/blob/master/screenshots/Screenshot1.png)
+![Alt text](https://github.com/akshaydugar/RichTextEditor/blob/master/screenshots/Screenshot2.png)
 
 ## Limitations
 1. The **window.getSelection** Javascript method does not work properly on Android webview for OS version < 4.4 KitKat. This method is used to determine the formatting applied to the text at current cursor position. So, it's advised to continue using EditText for OS version < 4.4 and use Rich Text Editor only for OS version >= 4.4
